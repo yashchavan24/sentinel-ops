@@ -8,7 +8,7 @@ Showcasing practical knowledge of offensive/defensive security, kill-chain analy
 
 
 
-🔗 \*\*Live Demo:\*\* \[https://yashchavan24.github.io/sentinel-ops/](https://yashchavan24.github.io/sentinel-ops/)
+🔗 \*\*Live Demo:\*\* \[https://yashchavan24.github.io/sentinel-ops/]
 
 
 
@@ -42,5 +42,12 @@ Showcasing practical knowledge of offensive/defensive security, kill-chain analy
 
 node server.js
 
-\# Open http://localhost:3000
+\\# Open http://localhost:3000
+
+
+
+
+
+
+
 
