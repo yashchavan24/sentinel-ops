@@ -7,7 +7,7 @@ const sha256 = s => crypto.createHash('sha256').update(SALT + s).digest('hex');
 
 let db;
 try { db = JSON.parse(fs.readFileSync(DBF, 'utf8')); }
-catch (e) { db = { users: [{ email: 'operator@sentinel.ops', hash: sha256('letmein2026'), name: 'Operator' }], messages: [] }; }
+catch (e) { db = { users: [{ email: 'yashchavan.2332@gmail.com', hash: sha256('letmein2026'), name: 'Operator' }], messages: [] }; }
 const sessions = {}, fails = {};
 const save = () => { try { fs.writeFileSync(DBF, JSON.stringify(db, null, 2)); } catch (e) {} };
 
